@@ -1,0 +1,27 @@
+i.You cannot use pointers in Java, but in C++ you can. 
+  There are pointers in Java, but you cannot write a programa
+  that using pointers directly, while in C++ you can
+
+ii.Java is independient from the platform, while C++ is not.
+    As the compilation if Java is made in the virtual machine,
+    it does not depend on the machine that is written the program
+
+iii.C++ is only compiled, while Java is bath compiled and interpreted.
+    This means that a C++ program needs to be compiled to check all the errors,
+    while in Java you can check them whiler writing
+
+iv.In Java, all the calls ara by reference, while in C++ you can by value too
+    as in Java everything is pointed by a pointer which you always use to refer to
+    an object, while in C++ you can make the call to the real value of a variable.
+
+v.In C++ you can is closer to the hardware, so you can allocate memory, 
+    while in Java you are further from the memory and its mangement is done by 
+    the garbage collector which means the user does not need to worry about the memory
+
+PROGRAMS WRITTEN IN C++
+
+i.Adobe systems, probably these benefits from the capability of the memory management as in programas like photosop this resource is very important
+ 
+ii.Microsoft office, again, as the memory is very important in document mangament porgrams, is a really good choice to use C++ for its memory management
+
+iii.MongoDB, I think that this makes obviuos that if you want to make programs that handle memory precisely, you should use C++ as all the programs I have mentioned use it because they need this kind of feature to be made.
