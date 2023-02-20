@@ -85,11 +85,11 @@ class Array
     // "first" and "last" must be Array iterators or pointers
     //   into a primitive array.
     Array (const_iterator first, const_iterator last)
-      : m_array (nullptr), m_size (last - first), m_capacity (0);
+      : m_array (nullptr), m_size (last - first), m_capacity (0)
     // remember to use a member initializer list!
     {
         reserve (m_size);
-        for (iterator i = 0; i < m_size; ++i)
+        for (size_t i = 0; i < m_size; ++i)
         {
             m_array[i] = first[i];
         }
@@ -121,11 +121,10 @@ class Array
     Array&
     operator= (const Array& a)
     {
-        if (m_array != &a)
+        if (this != &a)
         {
             delete m_array;
-            Array aux;
-            m_array = new Array(*a);
+            this->m_array = a.data();
             m_size = a.size();
             m_capacity = a.capacity();
             // aux.m_size = a.size ();
@@ -191,7 +190,7 @@ class Array
     void
     push_back (const T& item)
     {
-        insert (end (), item)
+        insert (end (), item);
     }
 
     // TODO!
@@ -230,14 +229,20 @@ class Array
     {
         if (m_size > newSize)
         {
-            for (iterator i = 0; i < (m_size - newSize); ++i)
+            for (size_t i = 0; i < (m_size - newSize); ++i)
             {
-                erase (newSize)
+                erase (newSize);
             }
         }
-        if (m_size < newSize)
+        if (m_size < newSize){
+            if(newSize > m_capacity){
+                reserve(m_capacity*2);
+            }
+            for(size_t i = m_size-1; i < newSize; ++i){
+                m_array[i] = value();
+            }
             m_size = newSize;
-        if (newSize)
+        }
     }
 
     // TODO!
@@ -250,14 +255,19 @@ class Array
     {
         if (m_capacity == 0)
         {
-            reserve (1)
+            m_array = T[1];
+            m_capacity = 1;
         }
         else if (m_capacity == m_size)
         {
-            reserve (m_size * 2);
+            reserve (m_capacity * 2);
         }
+        for(size_t i = m_size+1; i > pos-m_array; --i){
+            *(m_array+i) = *(m_array+i-1);
+        }
+        ++m_size;
         *pos = item;
-        return (m_array + pos);
+        return pos;
     }
 
     // TODO!
@@ -266,11 +276,12 @@ class Array
     iterator
     erase (iterator pos)
     {
-        for (iterator i = pos; i < m_size - 2; ++i)
+        for (size_t i = pos-m_array; i < m_size - 2; ++i)
         {
             m_array[i] = m_array[i + 1];
         }
         --m_size;
+        return pos;
     }
 
     // TODO!
