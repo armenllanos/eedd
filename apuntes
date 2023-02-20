@@ -1,0 +1,2 @@
+si declarars el objeto, se guarda en la stack
+si declaras el puntero, el puntero se queda en la stack pero el objeto se queda en la heap
