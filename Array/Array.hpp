@@ -124,15 +124,17 @@ class Array
         if (this != &a)
         {
             delete m_array;
-            this->m_array = a.data();
+            Array<int> aux;
+            
             m_size = a.size();
+            aux.resize(m_size);
             m_capacity = a.capacity();
             // aux.m_size = a.size ();
             // aux.reserve (a.capacity ());
-            // for (iterator i = a.begin (); i < a.end (); ++i)
-            // {
-            //     aux[i] = a[i];
-            // }
+            for (iterator i = a.begin (); i < a.end (); ++i)
+            {
+                aux.insert(aux+i,a[i]);
+            }
         }
         return *this;
     }
