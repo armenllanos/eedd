@@ -127,7 +127,7 @@ struct TreeIterator
     {
         TreeIterator it = *this;
         m_nodePtr = increment (m_nodePtr);
-        return *it;
+        return it;
         // Increment iterator so it points to in-order successor.
         // Return appropriate iterator.
     }
@@ -148,7 +148,7 @@ struct TreeIterator
     {
         TreeIterator it = *this;
         m_nodePtr = decrement (m_nodePtr);
-        return *it;
+        return it;
         // Decrement iterator so it points to in-order predecessor.
         // Return appropriate iterator.
     }
@@ -240,7 +240,7 @@ class SearchTree
     // Copy constructor
     // TODO
     SearchTree (const SearchTree& t)
-      : m_header (new Node (NULL)), m_size (t.m_size)
+      : m_header (T()), m_size (t.m_size)
     {
         for (auto& i : t)
         {
@@ -281,14 +281,14 @@ class SearchTree
     begin ()
     {
 
-        return minimum (m_header);
+        return iterator(minimum (m_header.right));
     }
 
     // TODO
     const_iterator
     begin () const
     {
-        return minimum (m_header);
+        return iterator(minimum (m_header.right));
     }
 
     // Return an iterator pointing one beyond the last element,
@@ -297,14 +297,14 @@ class SearchTree
     iterator
     end ()
     {
-        return m_header;
+        return iterator(&m_header);
     }
 
     // TODO
     const_iterator
     end () const
     {
-        return m_header;
+        return iterator(&m_header);
     }
 
     iterator
@@ -365,7 +365,7 @@ class SearchTree
     void
     clear ()
     {
-        clear (m_header);
+        clear (m_header.right);
     }
 
     void
@@ -426,9 +426,10 @@ class SearchTree
     ConstNodePtr
     findHelper (const T& v) const
     {
-        for(auto i:this){
+        
+        for(iterator i = this->begin();i!=this->end();++i){
             if(*i == v){
-                return i;
+                return i.m_nodePtr;
             }
         }
         return nullptr;
@@ -444,7 +445,7 @@ class SearchTree
             if(r->left != nullptr){
                 insert(v,r->left,r);
             }else{
-                Node aux= new Node(v, nullptr, nullptr,r);
+                Node aux(v, nullptr, nullptr,r);
                 r->left = &aux;
                 returnPtr = &aux;
             }
@@ -452,7 +453,7 @@ class SearchTree
             if(r->right != nullptr){
                 insert(v,r->right,r);
             }else{
-                Node aux= new Node(v, nullptr, nullptr,r);
+                Node aux(v, nullptr, nullptr,r);
                 r->right = &aux;
                 returnPtr = &aux;
             }
@@ -467,25 +468,29 @@ class SearchTree
     bool
     erase (const T& v, NodePtr& r)
     {
-        TreeIterator<T> it = find(v);
-        if(it == end()){
+        if(r == nullptr){
             return false;
-        }else{
-            if(it.m_nodePtr->left == nullptr && it.m_nodePtr->right == nullptr){
-                clear (it.m_nodePtr);
-            }else if(it.m_nodePtr->left == nullptr){
-                TreeIterator<T> aux = it;
-                ++aux;
-                it.m_nodePtr->data = aux.m_nodePtr->data;
-                erase (aux.m_nodePtr->data,aux.m_nodePtr);
-            }else {
-                TreeIterator<T> aux = it;
-                --aux;
-                it.m_nodePtr->data = aux.m_nodePtr->data;
-                erase (aux.m_nodePtr->data,aux.m_nodePtr);
-            }
-            return true;
         }
+        if(v < r->data){
+            return erase(v,r->left);
+        }if(v > r->data){
+            return erase(v,r->right);
+        }else{
+            if(r->left == nullptr && r->right == nullptr){
+                clear (r);
+                return true;
+            }else if(r->left == nullptr){
+                NodePtr aux = minimum(r);
+                r->data = aux->data;
+                return erase (aux->data,aux);
+            }else {
+                NodePtr aux = maximum(r);
+                r->data = aux->data;
+                return erase (aux->data,aux);
+            }
+            
+        }
+       
         // Erase "v" from the tree rooted at "r".
         // Return whether the erase succeeded or not.
     }
@@ -527,13 +532,25 @@ class SearchTree
     void
     printLevelOrder (ostream& out, NodePtr r) const
     {
-        queue<NodePtr> q = levelOrderChildren(r);
+        /*queue<NodePtr> q = levelOrderChildren(r);
         out << r->data << " ";
         while (!q.empty ())
         {
             r = q.front ();
             q.pop ();
             out << r->data << " ";
+        }*/
+        queue<NodePtr> q;
+        q.push (r);
+        while (!q.empty ())
+        {
+            r = q.front ();
+            q.pop ();
+            out << r->data << " ";
+            if (r->left != nullptr)
+                q.push (r->left);
+            if (r->right != nullptr)
+                q.push (r->right);
         }
     }
 
