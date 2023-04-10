@@ -187,7 +187,7 @@ struct TreeIterator
             }
             return aux;
         }
-        while (n->parent != nullptr && n == n->parent->right)
+        while (n->parent->parent != n && n == n->parent->right)
         {
             n = n->parent;
         }
@@ -263,6 +263,7 @@ class SearchTree
         m_header.right = nullptr;
         for (auto& i : t)
         {
+            cout << "i = " << i <<  endl;
             this->insert (i);
         }
     }
