@@ -476,44 +476,50 @@ class SearchTree
     NodePtr
     insert (const T& v, NodePtr& r, NodePtr parent)
     {
-        NodePtr returnPtr = nullptr;
         if (r == nullptr)
         {
             cout << "(new)" << ", r = " << "nullptr" << ", v = " << v << endl;
-            returnPtr = new Node(v, nullptr, nullptr, parent);
-            parent->parent = returnPtr;
+            r = new Node(v, nullptr, nullptr, parent);
+            if (m_size == 0) {
+                parent->parent = r;
+            }
             ++m_size;
         }
         else if (r->data < v)
         {
-            cout << "(right)" << ", r->data = " << r->data << ", v = " << v << endl;
-            if (r->right != nullptr)
-            {
-                returnPtr = insert (v, r->right, r);
-            }
-            else
-            {
-                returnPtr = new Node (v, nullptr, nullptr, r);
-                r->right = returnPtr;
-                ++m_size;
-            }
+            // cout << "(right)" << ", r->data = " << r->data << ", v = " << v << endl;
+            // if (r->right != nullptr)
+            // {
+                return insert (v, r->right, r);
+            // }
+            // else
+            // {
+            //     returnPtr = new Node (v, nullptr, nullptr, r);
+            //     r->right = returnPtr;
+            //     ++m_size;
+            // }
         }
         else if (r->data > v)
         {
-            cout << "(left)" << ", r->data = " << r->data << ", v = " << v << endl;
-            if (r->left != nullptr)
-            {
-                returnPtr = insert (v, r->left, r);
-            }
-            else
-            {
-                cout << "inserting: " << v << endl;
-                returnPtr = new Node (v, nullptr, nullptr, r);
-                r->left = returnPtr;
-                ++m_size;
-            }
+            // cout << "(left)" << ", r->data = " << r->data << ", v = " << v << endl;
+            // if (r->left != nullptr)
+            // {
+                return insert (v, r->left, r);
+            // }
+            // else
+            // {
+            //     cout << "inserting: " << v << endl;
+            //     returnPtr = new Node (v, nullptr, nullptr, r);
+            //     r->left = returnPtr;
+            //     ++m_size;
+            // }
         }
-        return returnPtr;
+        else 
+        {
+            return nullptr;
+        }
+
+        return r;
         // Insert "v" into the tree rooted at "r".
         // Use "parent" for recursion and setting the parent of the
         //   node containing "v".
