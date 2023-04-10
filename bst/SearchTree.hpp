@@ -30,6 +30,7 @@
 using std::ostream;
 using std::queue;
 
+
 /************************************************************/
 
 template<typename T>
@@ -375,7 +376,14 @@ class SearchTree
     void
     clear ()
     {
-        clear (m_header.right);
+        if (m_header.parent != nullptr) {
+            clear (m_header.parent);
+        }
+
+        m_size = 0;
+        m_header.left = nullptr;
+        m_header.right = nullptr;
+        m_header.parent = nullptr;
     }
 
     void
@@ -453,7 +461,6 @@ class SearchTree
     NodePtr
     insert (const T& v, NodePtr& r, NodePtr parent)
     {
-        std::cout << "n\nPINGA\n\n";
         NodePtr returnPtr = nullptr;
         if (r == nullptr)
         {
@@ -571,30 +578,21 @@ class SearchTree
     void
     printLevelOrder (ostream& out, NodePtr r) const
     {
-        /*queue<NodePtr> q = levelOrderChildren(r);
-        out << r->data << " ";
-        while (!q.empty ())
-        {
-            r = q.front ();
-            q.pop ();
+        if (r != nullptr) {
+            queue<NodePtr> q = levelOrderChildren(r);
+
             out << r->data << " ";
-        }*/
-        queue<NodePtr> q;
-        q.push (r);
-        while (!q.empty ())
-        {
-            r = q.front ();
-            q.pop ();
-            out << r->data << " ";
-            if (r->left != nullptr)
-                q.push (r->left);
-            if (r->right != nullptr)
-                q.push (r->right);
+            while (!q.empty ())
+            {
+                r = q.front ();
+                q.pop ();
+                out << r->data << " ";
+            }
         }
     }
 
     queue<NodePtr>
-    levelOrderChildren (NodePtr r)
+    levelOrderChildren (NodePtr r) const
     {
         queue<NodePtr> qLeft;
         queue<NodePtr> qRight;
