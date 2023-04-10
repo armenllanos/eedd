@@ -263,7 +263,6 @@ class SearchTree
         m_header.right = nullptr;
         for (auto& i : t)
         {
-            cout << "i = " << i <<  endl;
             this->insert (i);
         }
     }
@@ -349,11 +348,13 @@ class SearchTree
         if (inserted)
         {
             // Update header right to point to smallest node
-            if (m_header.right == nullptr || v < m_header.right->data)
+            if (m_header.right == nullptr || v < m_header.right->data) {
                 m_header.right = insertedNode;
+            }
             // Update header left to point to largest node
-            if (m_header.left == nullptr || v > m_header.left->data)
+            if (m_header.left == nullptr || v > m_header.left->data) {
                 m_header.left = insertedNode;
+            }
         }
 
         return {iterator (insertedNode), inserted};
@@ -363,18 +364,21 @@ class SearchTree
     erase (const T& v)
     {
         // Update header right to point to smallest node
-        if (m_header.right != nullptr && v == m_header.right->data)
+        if (m_header.right != nullptr && v == m_header.right->data) {
             m_header.right =
               const_cast<NodePtr> (iterator::increment (m_header.right));
+        }
         // Update header left to point to largest node
-        else if (m_header.left != nullptr && v == m_header.left->data)
+        else if (m_header.left != nullptr && v == m_header.left->data) {
             m_header.left =
               const_cast<NodePtr> (iterator::decrement (m_header.left));
+        }
 
         bool erased = erase (v, m_header.parent);
         // If we erased the last value set header left and right to nullptr
-        if (erased && empty ())
+        if (erased && empty ()) {
             m_header.left = m_header.right = nullptr;
+        }
 
         return erased ? 1 : 0;
     }
@@ -454,16 +458,17 @@ class SearchTree
     ConstNodePtr
     findHelper (const T& v) const
     {
-
-        for (iterator i = this->begin (); i != this->end (); ++i)
-        {
-            if (*i == v)
+        if (m_size != 0) {
+            for (iterator i = this->begin (); i != this->end (); ++i)
             {
-                // Return a pointer to the node that contains "v".
-                return i.m_nodePtr;
+                if (*i == v)
+                {
+                    // Return a pointer to the node that contains "v".
+                    return i.m_nodePtr;
+                }
             }
         }
-        // Return a pointer to the node that contains "v".
+        // Return a nullptr if "v" is not in the tree.
         return nullptr;
     }
 
@@ -474,31 +479,38 @@ class SearchTree
         NodePtr returnPtr = nullptr;
         if (r == nullptr)
         {
+            cout << "(new)" << ", r = " << "nullptr" << ", v = " << v << endl;
             returnPtr = new Node(v, nullptr, nullptr, parent);
             parent->parent = returnPtr;
-        }
-        if (r->data > v)
-        {
-            if (r->left != nullptr)
-            {
-                returnPtr = insert (v, r->left, r->parent);
-            }
-            else
-            {
-                returnPtr = new Node (v, nullptr, nullptr, r);
-                r->left = returnPtr;
-            }
+            ++m_size;
         }
         else if (r->data < v)
         {
+            cout << "(right)" << ", r->data = " << r->data << ", v = " << v << endl;
             if (r->right != nullptr)
             {
-                returnPtr = insert (v, r->right, r->parent);
+                returnPtr = insert (v, r->right, r);
             }
             else
             {
                 returnPtr = new Node (v, nullptr, nullptr, r);
                 r->right = returnPtr;
+                ++m_size;
+            }
+        }
+        else if (r->data > v)
+        {
+            cout << "(left)" << ", r->data = " << r->data << ", v = " << v << endl;
+            if (r->left != nullptr)
+            {
+                returnPtr = insert (v, r->left, r);
+            }
+            else
+            {
+                cout << "inserting: " << v << endl;
+                returnPtr = new Node (v, nullptr, nullptr, r);
+                r->left = returnPtr;
+                ++m_size;
             }
         }
         return returnPtr;
@@ -515,6 +527,7 @@ class SearchTree
         {
             return false;
         }
+        cout << "r->data = " << r->data << endl;
         if (v < r->data)
         {
             return erase (v, r->left);
@@ -528,6 +541,7 @@ class SearchTree
             if (r->left == nullptr && r->right == nullptr)
             {
                 clear (r);
+                --m_size;
                 return true;
             }
             else if (r->left == nullptr)
