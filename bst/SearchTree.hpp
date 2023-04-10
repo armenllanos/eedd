@@ -31,6 +31,11 @@ using std::ostream;
 using std::queue;
 
 
+
+using std::cout;
+using std::endl;
+
+
 /************************************************************/
 
 template<typename T>
@@ -253,6 +258,9 @@ class SearchTree
     SearchTree (const SearchTree& t) : m_header (), m_size (t.m_size)
     {
         Node m_header;
+        m_header.parent = nullptr;
+        m_header.left = nullptr;
+        m_header.right = nullptr;
         for (auto& i : t)
         {
             this->insert (i);
@@ -336,6 +344,7 @@ class SearchTree
     {
         NodePtr insertedNode = insert (v, m_header.parent, &m_header);
         bool inserted = insertedNode != nullptr;
+        
         if (inserted)
         {
             // Update header right to point to smallest node
@@ -464,34 +473,31 @@ class SearchTree
         NodePtr returnPtr = nullptr;
         if (r == nullptr)
         {
-            Node aux (v, nullptr, nullptr, parent);
-            returnPtr = &aux;
+            returnPtr = new Node(v, nullptr, nullptr, parent);
             parent->parent = returnPtr;
         }
-        if (r->data < v)
+        if (r->data > v)
         {
             if (r->left != nullptr)
             {
-                insert (v, r->left, r->parent);
+                returnPtr = insert (v, r->left, r->parent);
             }
             else
             {
-                Node aux (v, nullptr, nullptr, r);
-                r->left = &aux;
-                returnPtr = &aux;
+                returnPtr = new Node (v, nullptr, nullptr, r);
+                r->left = returnPtr;
             }
         }
         else if (r->data < v)
         {
             if (r->right != nullptr)
             {
-                insert (v, r->right, r->parent);
+                returnPtr = insert (v, r->right, r->parent);
             }
             else
             {
-                Node aux (v, nullptr, nullptr, r);
-                r->right = &aux;
-                returnPtr = &aux;
+                returnPtr = new Node (v, nullptr, nullptr, r);
+                r->right = returnPtr;
             }
         }
         return returnPtr;
@@ -579,6 +585,8 @@ class SearchTree
     printLevelOrder (ostream& out, NodePtr r) const
     {
         if (r != nullptr) {
+      
+
             queue<NodePtr> q = levelOrderChildren(r);
 
             out << r->data << " ";
@@ -596,25 +604,30 @@ class SearchTree
     {
         queue<NodePtr> qLeft;
         queue<NodePtr> qRight;
+        
         if (r == nullptr)
         {
             return qLeft;
         }
+        
         if (r->left != nullptr)
         {
             qLeft.push (r->left);
             qLeft = levelOrderChildren (r->left);
         }
+        
         if (r->right != nullptr)
         {
             qLeft.push (r->right);
             qRight = levelOrderChildren (r->right);
         }
+        
         while (!qRight.empty ())
         {
             qLeft.push (qRight.front ());
             qRight.pop ();
         }
+
         return qLeft;
     }
 

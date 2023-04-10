@@ -6,5 +6,4 @@ all : TreeTest
 
 TreeTest : TreeTest.cc SearchTree.hpp
 
-
-
+prueba : prueba.cc SearchTree.hpp
