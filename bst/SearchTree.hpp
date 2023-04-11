@@ -176,7 +176,6 @@ struct TreeIterator
     static ConstNodePtr
     increment (ConstNodePtr n)
     {
-
         // Return in-order successor of "n".
         if (n->right != nullptr)
         {
@@ -191,6 +190,7 @@ struct TreeIterator
         {
             n = n->parent;
         }
+       
         return n->parent;
     }
 
@@ -207,7 +207,7 @@ struct TreeIterator
             }
             return aux;
         }
-        while (n->parent != nullptr && n == n->parent->left)
+        while (n->parent->parent != n && n == n->parent->left)
         {
             n = n->parent;
         }
@@ -255,7 +255,7 @@ class SearchTree
 
     // Copy constructor
     // TODO
-    SearchTree (const SearchTree& t) : m_header (), m_size (t.m_size)
+    SearchTree (const SearchTree& t) : m_header (), m_size (0)
     {
         Node m_header;
         m_header.parent = nullptr;
@@ -403,6 +403,7 @@ class SearchTree
     void
     printInOrder (ostream& out) const
     {
+       
         printInOrder (out, m_header.parent);
     }
 
@@ -429,6 +430,7 @@ class SearchTree
     NodePtr
     minimum (NodePtr r) const
     {
+
         if (r->left == nullptr)
         {
             return r;
@@ -478,7 +480,6 @@ class SearchTree
     {
         if (r == nullptr)
         {
-            cout << "(new)" << ", r = " << "nullptr" << ", v = " << v << endl;
             r = new Node(v, nullptr, nullptr, parent);
             if (m_size == 0) {
                 parent->parent = r;
@@ -487,32 +488,11 @@ class SearchTree
         }
         else if (r->data < v)
         {
-            // cout << "(right)" << ", r->data = " << r->data << ", v = " << v << endl;
-            // if (r->right != nullptr)
-            // {
-                return insert (v, r->right, r);
-            // }
-            // else
-            // {
-            //     returnPtr = new Node (v, nullptr, nullptr, r);
-            //     r->right = returnPtr;
-            //     ++m_size;
-            // }
+            return insert (v, r->right, r);
         }
         else if (r->data > v)
         {
-            // cout << "(left)" << ", r->data = " << r->data << ", v = " << v << endl;
-            // if (r->left != nullptr)
-            // {
-                return insert (v, r->left, r);
-            // }
-            // else
-            // {
-            //     cout << "inserting: " << v << endl;
-            //     returnPtr = new Node (v, nullptr, nullptr, r);
-            //     r->left = returnPtr;
-            //     ++m_size;
-            // }
+            return insert (v, r->left, r);
         }
         else 
         {
@@ -533,11 +513,12 @@ class SearchTree
         {
             return false;
         }
-        cout << "r->data = " << r->data << endl;
+
         if (v < r->data)
         {
             return erase (v, r->left);
         }
+
         if (v > r->data)
         {
             return erase (v, r->right);
@@ -546,23 +527,39 @@ class SearchTree
         {
             if (r->left == nullptr && r->right == nullptr)
             {
+                if (r->parent->left == r) {
+                    r->parent->left = nullptr;
+                }
+                else {
+                    r->parent->right = nullptr;
+                }
+                if(m_size == 1){
+                    r->parent->parent = nullptr;
+                }
+             
                 clear (r);
                 --m_size;
                 return true;
             }
             else if (r->left == nullptr)
             {
-                NodePtr aux = minimum (r);
-                r->data = aux->data;
-                return erase (aux->data, aux);
+                
+                r->data = r->right->data;
+                return erase (r->right->data, r->right);
             }
-            else
+            else if (r->right == nullptr)
             {
-                NodePtr aux = maximum (r);
-                r->data = aux->data;
-                return erase (aux->data, aux);
+                r->data = r->left->data;
+                return erase (r->left->data, r->left);
+            }
+            else 
+            {
+                NodePtr min = minimum(r->right);
+                r->data = min->data;
+                return erase(r->data, r->right);
             }
         }
+
 
         // Erase "v" from the tree rooted at "r".
         // Return whether the erase succeeded or not.
@@ -572,16 +569,19 @@ class SearchTree
     void
     clear (NodePtr r)
     {
+        if (r != nullptr) {
+            if (r->left != nullptr)
+            {
+                clear (r->left);
+            }
 
-        if (r->left != nullptr)
-        {
-            clear (r->left);
+            if (r->right != nullptr)
+            {
+                clear (r->right);
+            }
+            
+            delete r;
         }
-        if (r->right != nullptr)
-        {
-            clear (r->right);
-        }
-        delete r;
 
         // Delete all nodes in the tree rooted at "r".
     }
@@ -606,50 +606,37 @@ class SearchTree
     printLevelOrder (ostream& out, NodePtr r) const
     {
         if (r != nullptr) {
-      
-
-            queue<NodePtr> q = levelOrderChildren(r);
-
-            out << r->data << " ";
-            while (!q.empty ())
-            {
-                r = q.front ();
-                q.pop ();
-                out << r->data << " ";
+            int d = depth();
+            for(size_t i = 0; i <= d; ++i){
+                levelOrderChildren(out, r, i);
+                if (i != d) {
+                    out << "| ";
+                }
             }
         }
     }
 
-    queue<NodePtr>
-    levelOrderChildren (NodePtr r) const
+    void
+    levelOrderChildren (ostream& out, NodePtr r, size_t depth) const
     {
-        queue<NodePtr> qLeft;
-        queue<NodePtr> qRight;
-        
-        if (r == nullptr)
-        {
-            return qLeft;
+        if(r != nullptr){
+            if(depth == 0){
+                out << r->data << " ";
+            }else if(depth > 0){
+                levelOrderChildren(out, r->left, depth-1);
+                levelOrderChildren(out, r->right, depth-1);
+            }
+        }
+        else
+        {            
+            if(depth == 0){
+                out << "- ";
+            }else if(depth > 0){
+                levelOrderChildren(out, r, depth-1);
+                levelOrderChildren(out, r, depth-1);
+            }
         }
         
-        if (r->left != nullptr)
-        {
-            qLeft.push (r->left);
-            qLeft = levelOrderChildren (r->left);
-        }
-        
-        if (r->right != nullptr)
-        {
-            qLeft.push (r->right);
-            qRight = levelOrderChildren (r->right);
-        }
-        
-        while (!qRight.empty ())
-        {
-            qLeft.push (qRight.front ());
-            qRight.pop ();
-        }
-
-        return qLeft;
     }
 
   private:
