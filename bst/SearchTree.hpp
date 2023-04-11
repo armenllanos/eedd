@@ -509,6 +509,7 @@ class SearchTree
     bool
     erase (const T& v, NodePtr& r)
     {
+        // cout<< endl << "v = " << v << endl;
         if (r == nullptr)
         {
             return false;
@@ -530,34 +531,73 @@ class SearchTree
                 if (r->parent->left == r) {
                     r->parent->left = nullptr;
                 }
-                else {
+                else if (r->parent->right == r){
                     r->parent->right = nullptr;
                 }
                 if(m_size == 1){
-                    r->parent->parent = nullptr;
+                    m_header.parent = nullptr;
+                    m_header.right = nullptr;
+                    m_header.left = nullptr;
                 }
-             
+
                 clear (r);
                 --m_size;
                 return true;
             }
-            else if (r->left == nullptr)
+            else if (r->right != nullptr)
             {
                 
-                r->data = r->right->data;
-                return erase (r->right->data, r->right);
-            }
-            else if (r->right == nullptr)
-            {
-                r->data = r->left->data;
-                return erase (r->left->data, r->left);
-            }
-            else 
-            {
                 NodePtr min = minimum(r->right);
                 r->data = min->data;
+                if (m_header.left == min) {
+                    m_header.left = r;
+                }
+                if (m_header.right == min) {
+                    m_header.right = r;
+                }
                 return erase(r->data, r->right);
+                // r->data = r->left->data;
+                // if (m_header.left == r->left) {
+                //     m_header.left = r;
+                // }
+                // if (m_header.right == r->left) {
+                //     m_header.right = r;
+                // }
+                // return erase (r->left->data, r->left);
             }
+            else if (r->left != nullptr)
+            {
+                
+                NodePtr min = maximum(r->left);
+                r->data = min->data;
+                if (m_header.left == min) {
+                    m_header.left = r;
+                }
+                if (m_header.right == min) {
+                    m_header.right = r;
+                }
+                return erase(r->data, r->left);
+                // r->data = r->right->data;
+                // if (m_header.left == r->right) {
+                //     m_header.left = r;
+                // }
+                // if (m_header.right == r->right) {
+                //     m_header.right = r;
+                // }
+                // return erase (r->right->data, r->right);
+            }
+            // else 
+            // {
+            //     NodePtr min = minimum(r->right);
+            //     r->data = min->data;
+            //     if (m_header.left == min) {
+            //         m_header.left = r;
+            //     }
+            //     if (m_header.right == min) {
+            //         m_header.right = r;
+            //     }
+            //     return erase(r->data, r->right);
+            // }
         }
 
 
