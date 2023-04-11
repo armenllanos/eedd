@@ -6,6 +6,7 @@
 #include <iterator>
 #include <sstream>
 #include <cassert>
+#include <cmath>
 
 /************************************************************/
 // Local includes
@@ -42,73 +43,44 @@ tree_insert (SearchTree<T>& tree, const vector<T>& values)
         tree.insert (value);
     }
 }
+template<typename T>
+void
+tree_erase (SearchTree<T>& tree, const vector<T>& values)
+{
+    for (T value : values)
+    {
+        tree.erase (value);
+        cout << "smallest = " << tree.end().m_nodePtr->right->data << endl;
+    }
+}
 
 int      
 main (int argc, char* argv[]) 
 {        
     SearchTree<int> T;
-    tree_insert (T, {1});
+    tree_insert (T, {4, 2, 1, 3, 6, 5, 7});
+    tree_erase(T, {4, 3, 1, 2});
+    int s = T.size();
+    int i = 0;
+    int k;
     cout << T << endl;
-    tree_insert (T, {2});
-    cout << T;
-    tree_insert (T, {1, 2, 3, 4});
-    cout << T;
-    // For holding the actual result
-    ostringstream output;
-    // Put the actual result into the output stream
-    output << T;
-    printTestResult ("no-arg ctor", "[ 1 2 3 4 ]", output);
-
-    // Must clear the output stream each time
-    output.str ("");
+    while (T.size () > 0)
+    {
+        k = *(--T.end ());
+        cout << "\r(i = " << i << ")";
+        cout << "\tErasing: " << k;
+        cout << "\tPercentage: (" << T.size () << " / " << s << ") " << (std::ceil((T.size ()/(double)s) * 100.0 * 100.0) / 100.0) << "%" << endl;
+        T.erase (k);
+        cout << T << endl;
+        ++i;
+    }
     
 
 
-
+    
     return EXIT_SUCCESS;
 }
 
-/*TEST_CASE ("copy constructor (7)")
-{
-    SearchTree<int> tree_a;
-
-    tree_insert (tree_a, {1, 2, 3, 4});
-
-    SearchTree<int> tree_b (tree_a);
-
-    std::cout << "d\n";
-    SECTION ("copy constructor - state of tree after copy construct [3.00]")
-    {
-        std::cout << "y\n";
-        REQUIRE_TREE (tree_b, "[ 1 2 3 4 ]", 3);
-    }
-
-    // Dependencies: size
-    SECTION ("copy constructor - size of tree after copy construct [0.20]")
-    {
-        REQUIRE (tree_b.size () == 4);
-    }
-
-    // Dependencies: iterator decrement, end
-    SECTION ("copy constructor - head links after copy construct [0.80]")
-    {
-        REQUIRE_HEAD (tree_b, 1, 4, 1);
-    }
-
-    // Dependencies: clear
-    SECTION ("copy constructor - separate from original [3.00]")
-    {
-        tree_b.clear ();
-        tree_b.insert (5);
-
-        ostringstream stream_a, stream_b;
-
-        tree_a.printInOrder (stream_a);
-        tree_b.printInOrder (stream_b);
-
-        REQUIRE (stream_a.str () != stream_b.str ());
-    }
-}*/
 
 /************************************************************/
 
