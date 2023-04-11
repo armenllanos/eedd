@@ -511,6 +511,7 @@ class SearchTree
     bool
     erase (const T& v, NodePtr& r)
     {
+        // cout<< endl << "v = " << v << endl;
         if (r == nullptr)
         {
             return false;
@@ -562,6 +563,14 @@ class SearchTree
                     m_header.right = r;
                 }
                 return erase (r->data, r->right);
+                // r->data = r->left->data;
+                // if (m_header.left == r->left) {
+                //     m_header.left = r;
+                // }
+                // if (m_header.right == r->left) {
+                //     m_header.right = r;
+                // }
+                // return erase (r->left->data, r->left);
             }
             else if (r->left != nullptr)
             {
@@ -577,7 +586,27 @@ class SearchTree
                     m_header.right = r;
                 }
                 return erase (r->data, r->left);
+                // r->data = r->right->data;
+                // if (m_header.left == r->right) {
+                //     m_header.left = r;
+                // }
+                // if (m_header.right == r->right) {
+                //     m_header.right = r;
+                // }
+                // return erase (r->right->data, r->right);
             }
+            // else
+            // {
+            //     NodePtr min = minimum(r->right);
+            //     r->data = min->data;
+            //     if (m_header.left == min) {
+            //         m_header.left = r;
+            //     }
+            //     if (m_header.right == min) {
+            //         m_header.right = r;
+            //     }
+            //     return erase(r->data, r->right);
+            // }
         }
 
         // Erase "v" from the tree rooted at "r".

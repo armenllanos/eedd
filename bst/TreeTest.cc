@@ -1514,7 +1514,6 @@ TEST_CASE ("make string tree (1)")
 // Dependencies: insert, erase, end, clear, iterator dereference, copy constructor
 TEST_CASE ("stress test (2)")
 {
-    cout << "Started..." << endl;
     SECTION ("stress test [2.00]")
     {
         SearchTree<int> tree_a;
@@ -1525,7 +1524,6 @@ TEST_CASE ("stress test (2)")
         big_rand.insert (root);
         tree_a.insert (root);
 
-        cout << "For..." << endl;
         for (int i = 1; i < 20000; ++i)
         {
             int temp = gen () % 40000;
@@ -1536,11 +1534,8 @@ TEST_CASE ("stress test (2)")
         int min = *big_rand.begin ();
         int max = *(--big_rand.end ());
 
-        cout << "min = " << min << endl;
-        cout << "max = " << max << endl;
         string big_rand_string = "[ ";
         
-        cout << "Another For..." << endl;
         for (int num : big_rand)
         {
             big_rand_string += to_string (num) + " ";
@@ -1556,13 +1551,11 @@ TEST_CASE ("stress test (2)")
         {
             FAIL ("Tree state incorrect. Tree size too large to display.");
         }
-        cout << "Dunno..." << endl;
 
         REQUIRE (tree_a.depth () == 30);
         REQUIRE (tree_a.size () == big_rand.size ());
         REQUIRE_HEAD (tree_a, min, max, root);
 
-        cout << "Fine?" << endl;
         SearchTree<int> tree_b (tree_a);
         tree_b.clear ();
 
@@ -1570,25 +1563,21 @@ TEST_CASE ("stress test (2)")
         REQUIRE (tree_b.size () == 0);
         REQUIRE_HEAD_NULL (tree_b);
 
-        cout << "While..." << endl;
         int s = tree_a.size();
         while (tree_a.size () > 0)
         {
-            cout << "\rPercentage: (" << tree_a.size () << " / " << s << ") " << (std::ceil((tree_a.size ()/(double)s) * 100.0 * 100.0) / 100.0) << "%";
             tree_a.erase (*(--tree_a.end ()));
         }
 
         REQUIRE_TREE (tree_a, "[ ]", -1);
         REQUIRE (tree_a.size () == 0);
         REQUIRE_HEAD_NULL (tree_a);
-        cout << "Erased..." << endl;
 
         tree_insert (tree_a, {4, 2, 6, 1, 3, 5, 7});
 
         REQUIRE_TREE (tree_a, "[ 1 2 3 4 5 6 7 ]", 2);
         REQUIRE (tree_a.size () == 7);
         REQUIRE_HEAD (tree_a, 1, 7, 4);
-        cout << "YAYKSSSS..." << endl;
     }
 }
 
