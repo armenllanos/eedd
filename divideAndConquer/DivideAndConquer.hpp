@@ -26,31 +26,24 @@ template<typename Iter>
 Iter
 median3 (Iter first, Iter last)
 {
-    if (std::distance (first, last) == 1)
+    Iter mid = first + (std::prev (last) - first) / 2;
+    if (*mid < *first)
     {
-        return first;
+        auto aux = *mid;
+        *mid = *first;
+        *first = aux;
     }
-    else if ((std::distance (first, last) == 2))
-    {
-        auto previous = std::prev (last);
-        return previous;
-    }
-
-    auto mid = median3 (first + std::distance (first, last) / 3,
-                        first + 2 * std::distance (first, last) / 3);
-    first = median3 (first, std::distance (first, last) / 3);
-    last = median3 (first + 2 * std::distance (first, last) / 3, last);
     if (*mid > *std::prev (last))
     {
         auto aux = *mid;
         *mid = *std::prev (last);
         *std::prev (last) = aux;
     }
-    if (*first > *mid)
+    if (*mid < *first)
     {
-        auto aux = *first;
-        *first = *mid;
-        *mid = aux;
+        auto aux = *mid;
+        *mid = *first;
+        *first = aux;
     }
     return mid;
 }
@@ -73,24 +66,24 @@ merge (Iter1 first1, Iter1 last1, Iter2 first2, Iter2 last2, OIter out)
     else if (first1 == last1)
     {
         *out = *first2;
-        return merge (first1, last1, ++first2, last2, ++out);
+        return SortUtils::merge (first1, last1, ++first2, last2, ++out);
     }
     else if (first2 == last2)
     {
         *out = *first1;
-        return merge (++first1, last1, first2, last2, ++out);
+        return SortUtils::merge (++first1, last1, first2, last2, ++out);
     }
     else
     {
         if (*first2 > *first1)
         {
             *out = *first1;
-            return merge (++first1, last1, first2, last2, ++out);
+            return SortUtils::merge (++first1, last1, first2, last2, ++out);
         }
         else
         {
             *out = *first2;
-            return merge (first1, last1, ++first2, last2, ++out);
+            return SortUtils::merge (first1, last1, ++first2, last2, ++out);
         }
     }
 
@@ -117,37 +110,29 @@ template<typename Iter, typename Value>
 std::pair<Iter, Iter>
 partition (Iter first, Iter last, Value const& pivot)
 {
-
-    if (std::distance (first, last) == 1)
+    Iter lo = first;
+    Iter eq = first;
+    Iter hi = std::prev (last);
+    while (eq != hi)
     {
-        if (*first > pivot)
+        if (*eq < pivot)
         {
-            return (last, last);
+            std::swap (lo, eq);
+            ++lo;
+            ++eq;
         }
-        else if (*first < pivot)
+        else if (*eq > pivot)
         {
-            return (first, first);
+            --hi;
+            std::swap (eq, hi);
         }
         else
         {
-            return (first, last);
+            ++eq;
         }
     }
-    else
-    {
-        std::pair<Iter, Iter> half = partition (first, (last - first / 2) - 1);
-        std::pair<Iter, Iter> otherHalf = partition (last - first / 2, last);
-        Iter before;
-        before =
-          merge (first, half.first, last - first / 2, otherHalf.first, before);
-        Iter middle;
-        middle = merge (half.first, half.last, otherHalf.first, otherHalf.last,
-                        middle);
-        Iter end;
-        middle =
-          merge (half.last, (last - first / 2) - 1, otherHalf.last, last, end);
-        return (before, middle);
-    }
+    return(hi,lo);
+
     // TODO
 }
 
@@ -246,7 +231,7 @@ merge_sort (Iter first, Iter last, std::vector<Iter>& buffer)
     merge_sort (first, mid, buffer);
     merge_sort (mid, last, buffer);
 
-    merge (first, mid, mid, last, buffer.begin ());
+    SortUtils::merge (first, mid, mid, last, buffer.begin ());
     std::copy (buffer.begin (), buffer.begin () + size, first);
 }
 
@@ -293,9 +278,10 @@ quick_sort (Iter first, Iter last)
 
     // T is the type of data we are sorting
     using T = std::remove_reference_t<decltype (*std::declval<Iter> ())>;
-    auto pivot = median3(first, last);
-    quicksort(first, pivot + 1);
-    quicksort(pivot + 1, last);
+    auto pivot = *median3 (first, last);
+    auto parts = partition (first,last, pivot);
+    quicksort (first, parts.first);
+    quicksort (parts.last, last);
 }
 
 } // end namespace util
